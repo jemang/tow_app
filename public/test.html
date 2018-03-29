@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Site Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" href="http://localhost/socialkit/favicon.ico" />
+    <link href="http://localhost/socialkit/themes/grape/css/style.css" rel="stylesheet">
+    <link href="http://localhost/socialkit/themes/grape/css/style-1.1.css" rel="stylesheet">
+    <link href="http://localhost/socialkit/themes/grape/css/style-1.2.css" rel="stylesheet">
+        <link href="http://localhost/socialkit/themes/grape/css/font-awesome/font-awesome.css" rel="stylesheet">
+    <!--[if IE 7]>
+        <link href="http://localhost/socialkit/themes/grape/css/font-awesome/font-awesome-ie7.css" rel="stylesheet">
+    <![endif]-->
+    <script src="http://localhost/socialkit/themes/grape/javascript/jquery.1.10.2.min.js"></script>
+    <script src="http://localhost/socialkit/themes/grape/javascript/jquery-ui-1.10.4.custom.min.js"></script>
+    <script src="http://localhost/socialkit/themes/grape/javascript/jquery.ui.touch-punch.min.js"></script>
+    <script src="http://localhost/socialkit/themes/grape/javascript/jquery-timeago.js"></script>
+    <script src="http://localhost/socialkit/themes/grape/javascript/jquery.form.min.js"></script>
+    <script>
+    function SK_source(){
+        return 'request.php';
+    }
+    function SK_pageSource() {
+        return 'page.php';
+    }
+</script>    <script src="http://localhost/socialkit/themes/grape/javascript/script.js"></script>
+        <script>
+    /* Ajax Page Loader */
+    function SK_loadPage(pageurl) {
+        $.get(SK_pageSource() + pageurl, {}, function (data) {
+            $('.page-wrapper')
+                .html(data);
+            stopPageLoadingBar();
+
+            if (typeof window.history.pushState == "function") {
+                historyurl = pageurl;
+                
+                if ($("body").attr('data-rewrite') == 1) {
+                    historyurl = historyurl.replace(/\?tab1=timeline&tab2=([^\/]+)&tab3=([^\/]+)&recipient_id=([^\/]+)&id=([^\/]+)$/i, 'http://localhost/socialkit/@$4/$1/$2/$3');
+                    historyurl = historyurl.replace(/\?tab1=timeline&tab2=([^\/]+)&tab3=([^\/]+)&id=([^\/]+)$/i, 'http://localhost/socialkit/@$3/$1/$2');
+                    historyurl = historyurl.replace(/\?tab1=timeline&tab2=([^\/]+)&id=([^\/]+)$/i, 'http://localhost/socialkit/@$2/$1');
+                    historyurl = historyurl.replace(/\?tab1=timeline&id=([^\/]+)$/i, 'http://localhost/socialkit/@$1');
+
+                    historyurl = historyurl.replace(/\?tab1=messages&recipient_id=([A-Za-z0-9_]+)$/i, 'http://localhost/socialkit/messages/$1');
+                    historyurl = historyurl.replace(/\?tab1=story&id=([0-9]+)$/i, 'http://localhost/socialkit/story/$1');
+
+                    historyurl = historyurl.replace(/\?tab1=welcome&tab2=forgot_password$/i, 'http://localhost/socialkit/forgot-password');
+                    historyurl = historyurl.replace(/\?tab1=welcome&tab2=password_reset&id=([A-Za-z0-9_]+)$/i, 'http://localhost/socialkit/password-reset/$1');
+
+                    historyurl = historyurl.replace(/\?tab1=([^\/]+)&query=([^\/]+)$/i, 'http://localhost/socialkit/$1/$2');
+
+                    historyurl = historyurl.replace(/\?tab1=([^\/]+)&tab2=([^\/]+)&tab3=([^\/]+)$/i, 'http://localhost/socialkit/$1/$2/$3');
+                    historyurl = historyurl.replace(/\?tab1=([^\/]+)&tab2=([^\/]+)$/i, 'http://localhost/socialkit/$1/$2');
+                    historyurl = historyurl.replace(/\?tab1=([^\/]+)$/i, 'http://localhost/socialkit/$1');
+                }
+
+                history.replaceState({}, 'SocialKit', historyurl);
+            }
+        });
+        
+        $('.dropdown-search-container').hide();
+        $('.dropdown-notification-container').hide();
+        $('.notification-nav').removeClass('header-nav-active');
+        $('.dropdown-more-container').hide();
+        $(".sc-lightbox-container").remove();
+    }
+
+    function startPageLoadingBar() {
+        $(".page-loading-bar")
+            .show()
+            .width((50 + Math.random() * 30) + "%");
+    }
+    function stopPageLoadingBar() {
+        $(".page-loading-bar")
+            .width("101%")
+            .delay(200)
+            .fadeOut(400, function() {
+                $(this).width("0");
+            });
+    }
+
+    $(document).on('click', '*[data-href]', function(e) {
+        e.preventDefault();
+        startPageLoadingBar();
+        SK_loadPage($(this).attr('data-href'));
+        $(document).scrollTop(0);
+    });
+    </script>
+</head>
+<body>
+    <div class="header-wrapper" name="top">
+    <div class="header-content">
+        <div class="float-left">
+            <table border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td class="header-site-logo" align="left" valign="top">
+                    <a href="http://localhost/socialkit" style="margin-left: 10px;">
+                        <img src="http://localhost/socialkit/themes/grape/logo.png" alt="IslamWay">
+                    </a>
+                </td>
+                <td align="left" valign="top">
+                    <div class="header-live-search">
+                        <input value="Search for people, trends, pages and groups" placeholder="Search for people, trends, pages and groups" data-placeholder="Search for people, trends, pages and groups" type="text" onkeyup="SK_headerSearch(this.value);">
+                    </div>
+                </td>
+            </tr>
+            </table>
+        </div>
+        <div class="float-right">
+                        <a class="header-nav float-left" href="http://localhost/socialkit/index.php?tab1=home" title="Home" data-href="?tab1=home">
+                <i class="icon icon-home"></i>
+            </a>
+            <a class="notification-nav header-nav float-left" title="Notifications" onclick="SK_openNotifications();">
+                <i class="icon icon-globe"></i>
+                                <span class="new-update-alert hidden">
+                    0                </span>
+            </a>
+            <a class="message-nav header-nav float-left" href="http://localhost/socialkit/index.php?tab1=messages" title="Message" data-href="?tab1=messages">
+                <i class="icon icon-comments"></i>
+                                <span class="new-update-alert hidden">
+                    0                </span>
+            </a>
+                        <a class="followers-nav header-nav float-left" href="http://localhost/socialkit/index.php?tab1=timeline&tab2=following&id=decade" title="Following" data-href="?tab1=timeline&tab2=following&id=decade">
+                <i class="icon icon-group"></i>
+                <span class="new-update-alert hidden">
+                    0                </span>
+            </a>
+            <a class="manager-nav header-nav float-left" href="http://localhost/socialkit/index.php?tab1=more" title="My Pages & Groups" data-href="?tab1=more">
+                <i class="icon icon-reorder"></i>
+            </a>
+            <div class="header-user-info float-left cursor-hand" style="position: relative;">
+                <a class="header-user-link" href="http://localhost/socialkit/index.php?tab1=timeline&id=decade" data-href="?tab1=timeline&id=decade">
+                    <img class="header-user-avatar" src="http://localhost/socialkit/themes/grape/images/default-male-avatar.png" width="24px" alt="decade">
+                    <strong>decade</strong>
+                </a>
+                <i class="icon-caret-down dropdown-icon"></i>
+                <span class="dropdown-overlay-wrap" onclick="SK_moreToggle();"></span>
+            </div>
+            <div class="float-clear"></div>
+                    </div>
+        <div class="float-clear"></div>
+    </div>
+</div>
+<div class="dropdown-search-container">
+    <div class="dropdown-search-wrapper">
+        <div class="dropdown-search-content float-left">
+            <div class="search-header">
+                <i class="icon-search progress-icon hide"></i>
+                Search Results            </div>
+            
+            <div class="search-list-wrapper"></div>
+            
+            <div align="center">
+                <a class="page-link" href="#">
+                    See all results                </a>
+            </div>
+        </div>
+        <div class="float-clear"></div>
+    </div>
+</div>
+<div class="dropdown-notification-container">
+    <div class="dropdown-notification-wrapper">
+        <div class="dropdown-notification-content float-right">
+            <div class="notification-header">
+                <i class="icon-globe progress-icon hide"></i>
+                Notifications            </div>
+            
+            <div class="notification-list-wrapper"></div>
+        </div>
+        
+        <div class="float-clear"></div>
+    </div>
+</div>
+<div class="dropdown-more-container">
+    <div class="dropdown-more-wrapper">
+        <div class="dropdown-more-content float-right">
+            <div class="more-header">More</div>
+            
+            <div class="more-list-wrapper">
+                <a class="more-list" href="http://localhost/socialkit/index.php?tab1=timeline&id=decade" data-href="?tab1=timeline&id=decade">
+                    <i class="icon icon-user"></i> My Profile                </a>
+                
+                <a class="more-list" href="http://localhost/socialkit/index.php?tab1=more" data-href="?tab1=more">
+                    <i class="icon icon-reorder"></i> My Pages & Groups                </a>
+                
+                <a class="more-list" href="http://localhost/socialkit/index.php?tab1=settings" data-href="?tab1=settings">
+                    <i class="icon icon-gear"></i> Settings                </a>
+                
+                <a class="more-list" href="http://localhost/socialkit/index.php?tab1=logout">
+                    <i class="icon icon-signout"></i> Log Out                </a>
+            </div>
+        </div>
+        
+        <div class="float-clear"></div>
+    </div>
+</div>
+<script>
+function SK_openNotifications() {
+    $('.dropdown-search-container').hide();
+    $('.dropdown-more-container').hide();
+    notification_container = $('.dropdown-notification-container');
+    notification_container.toggle();
+    
+    if (notification_container.css('display') == "block") {
+        $('.notification-nav').addClass('header-nav-active');
+        SK_progressIconLoader(notification_container.find('.notification-header'));
+        
+        $.get(SK_source(), {t: 'notifications'}, function (data) {
+            
+            if (data.status == 200) {
+                
+                if (data.html.length == 0) {
+                    $('.notification-list-wrapper').html('<div class="no-wrapper" align="center">You do not have any notifications</div>');
+                } else {
+                    $('.notification-list-wrapper').html(data.html);
+                    SK_intervalUpdates();
+                }
+            }
+            
+            SK_progressIconLoader(notification_container.find('.notification-header'));
+        });
+    } else {
+        $('.notification-nav').removeClass('header-nav-active');
+    }
+}
+function SK_headerSearch(query) {
+    $('.dropdown-more-container').hide();
+    $('.dropdown-notification-container').hide();
+    $('.notification-nav').removeClass('header-nav-active');
+    search_wrapper = $('.dropdown-search-container');
+    
+    if (query.length == 0) {
+        search_wrapper.hide();
+    }
+    else {
+        search_wrapper.show();
+        SK_progressIconLoader(search_wrapper.find('.search-header'));
+        
+        $.get(SK_source(), {t: 'search', a: 'header', q: query}, function (data) {
+            
+            if (data.status == 200) {
+                
+                if (data.html.length == 0) {
+                    search_wrapper
+                    .find('.search-list-wrapper')
+                        .html('<div class="no-wrapper">No result found!</div>')
+                    .end().find('a.page-link')
+                            .hide();
+                } else {
+                    search_wrapper
+                        .find('.search-list-wrapper')
+                            .html(data.html)
+                        .end()
+                        .find('a.page-link')
+                            .attr('href', data.link).show();
+                }
+            }
+            
+            SK_progressIconLoader(search_wrapper.find('.search-header'));
+        });
+    }
+}
+function SK_moreToggle() {
+    $('.dropdown-search-container').hide();
+    $('.dropdown-notification-container').hide();
+    $('.notification-nav').removeClass('header-nav-active');
+    $('.dropdown-more-container').toggle();
+}
+</script>    <div class="page-loading-bar">
+        <dd></dd>
+        <dt></dt>
+    </div>
+    
+    <div class="page-wrapper">
+        <div class="page-margin"></div>
+<div class="float-left span25">
+    <div class="list-wrapper">
+        <div class="list-header">
+            Menu        </div>
+        
+        <a class="list-column" href="http://localhost/socialkit/index.php?tab1=settings&tab2=general" data-href="?tab1=settings&tab2=general">
+            General Settings        </a>
+        
+        <a class="list-column" href="http://localhost/socialkit/index.php?tab1=settings&tab2=privacy" data-href="?tab1=settings&tab2=privacy">
+            Privacy Settings        </a>
+        
+        <a class="list-column" href="http://localhost/socialkit/index.php?tab1=settings&tab2=avatar" data-href="?tab1=settings&tab2=avatar">
+            Timeline Avatar        </a>
+        
+        <a class="list-column" href="http://localhost/socialkit/index.php?tab1=settings&tab2=cover" data-href="?tab1=settings&tab2=cover">
+            Timeline Cover        </a>
+        
+        <a class="list-column" href="http://localhost/socialkit/index.php?tab1=settings&tab2=password" data-href="?tab1=settings&tab2=password">
+            Password        </a>
+    </div>
+</div>
+<div class="float-right span74">
+        <form class="update-timeline-form" method="post">
+        <div class="form-container">
+            <div class="form-header">
+                General Settings            </div>
+            
+            <div class="form-input-wrapper">
+                <label class="float-left span15">
+                    Username:
+                </label>
+                <div class="input float-left span70">
+                    <input type="text" name="username" value="decade" autocomplete="off" onkeyup="SK_checkUsername(this.value,1,'.check-username-result',true);">
+                    <div class="check-username-result ajax-result"></div>
+                </div>
+                <div class="float-clear"></div>
+            </div>
+            
+            <div class="form-input-wrapper">
+                <label class="float-left span15">
+                    Full name:
+                </label>
+                <div class="input float-left span70">
+                    <input type="text" name="name" value="decade">
+                </div>
+                <div class="float-clear"></div>
+            </div>
+            
+            <div class="form-input-wrapper">
+                <label class="float-left span15">
+                    About:
+                </label>
+                <div class="input float-left span70">
+                    <textarea class="auto-grow-input" name="about" valign="top"></textarea>
+                </div>
+                <div class="float-clear"></div>
+            </div>
+            
+            <div class="form-input-wrapper">
+                <label class="float-left span15">
+                    E-mail:
+                </label>
+                <div class="input float-left span70">
+                    <input type="text" name="email" value="wanted157359@yahoo.com">
+                </div>
+                <div class="float-clear"></div>
+            </div>
+            
+            <div class="form-input-wrapper">
+                <label class="float-left span15">
+                    Birthday:
+                </label>
+                <div class="input float-left span70">
+                    <select class="birth-date-select" name="birthday[0]" style="width: 20%;">
+                        <option value="">Day:</option>
+                        <option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option>                    </select>
+                    <select class="birth-month-select" name="birthday[1]" style="width: 30%;" onchange="SK_getMonthDays(this.value);">
+                        <option value="">Month:</option>
+                        <option value="1" selected>January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>                    </select>
+                    <select class="birth-year-select" name="birthday[2]" style="width: 30%;">
+                        <option value="">Year:</option>
+                        <option value="1915">1915</option><option value="1916">1916</option><option value="1917">1917</option><option value="1918">1918</option><option value="1919">1919</option><option value="1920">1920</option><option value="1921">1921</option><option value="1922">1922</option><option value="1923">1923</option><option value="1924">1924</option><option value="1925">1925</option><option value="1926">1926</option><option value="1927">1927</option><option value="1928">1928</option><option value="1929">1929</option><option value="1930">1930</option><option value="1931">1931</option><option value="1932">1932</option><option value="1933">1933</option><option value="1934">1934</option><option value="1935">1935</option><option value="1936">1936</option><option value="1937">1937</option><option value="1938">1938</option><option value="1939">1939</option><option value="1940">1940</option><option value="1941">1941</option><option value="1942">1942</option><option value="1943">1943</option><option value="1944">1944</option><option value="1945">1945</option><option value="1946">1946</option><option value="1947">1947</option><option value="1948">1948</option><option value="1949">1949</option><option value="1950">1950</option><option value="1951">1951</option><option value="1952">1952</option><option value="1953">1953</option><option value="1954">1954</option><option value="1955">1955</option><option value="1956">1956</option><option value="1957">1957</option><option value="1958">1958</option><option value="1959">1959</option><option value="1960">1960</option><option value="1961">1961</option><option value="1962">1962</option><option value="1963">1963</option><option value="1964">1964</option><option value="1965">1965</option><option value="1966">1966</option><option value="1967">1967</option><option value="1968">1968</option><option value="1969">1969</option><option value="1970">1970</option><option value="1971">1971</option><option value="1972">1972</option><option value="1973">1973</option><option value="1974">1974</option><option value="1975">1975</option><option value="1976">1976</option><option value="1977">1977</option><option value="1978">1978</option><option value="1979">1979</option><option value="1980">1980</option><option value="1981">1981</option><option value="1982">1982</option><option value="1983">1983</option><option value="1984">1984</option><option value="1985">1985</option><option value="1986">1986</option><option value="1987">1987</option><option value="1988">1988</option><option value="1989">1989</option><option value="1990" selected>1990</option><option value="1991">1991</option><option value="1992">1992</option><option value="1993">1993</option><option value="1994">1994</option><option value="1995">1995</option><option value="1996">1996</option><option value="1997">1997</option><option value="1998">1998</option><option value="1999">1999</option><option value="2000">2000</option><option value="2001">2001</option><option value="2002">2002</option>                    </select>
+                </div>
+                <div class="float-clear"></div>
+            </div>
+            
+            <div class="form-input-wrapper">
+                <label class="float-left span15">
+                    Gender:
+                </label>
+                <div class="input float-left span70">
+                    <select name="gender">
+                                                <option value="male" selected>
+                            Male                        </option>
+                        <option value="female">
+                            Female                        </option>
+                    </select>
+                </div>
+                <div class="float-clear"></div>
+            </div>
+            
+            <div class="form-input-wrapper">
+                <label class="float-left span15">
+                    Current City:
+                </label>
+                <div class="input float-left span70">
+                    <input type="text" name="current_city" value="">
+                </div>
+                <div class="float-clear"></div>
+            </div>
+            
+            <div class="form-input-wrapper">
+                <label class="float-left span15">
+                    Hometown:
+                </label>
+                <div class="input float-left span70">
+                    <input type="text" name="hometown" value="">
+                </div>
+                <div class="float-clear"></div>
+            </div>
+            
+            <div class="form-input-wrapper">
+                <label class="float-left span15">Timezone:</label>
+                <div class="input float-left span70">
+                    <select name="timezone">
+                        hack<option value="Pacific/Midway">(GMT-11:00) Pacific, Midway</option><option value="Pacific/Niue">(GMT-11:00) Pacific, Niue</option><option value="Pacific/Pago_Pago">(GMT-11:00) Pacific, Pago Pago</option><option value="Pacific/Honolulu">(GMT-10:00) Pacific, Honolulu</option><option value="Pacific/Johnston">(GMT-10:00) Pacific, Johnston</option><option value="Pacific/Rarotonga">(GMT-10:00) Pacific, Rarotonga</option><option value="Pacific/Tahiti">(GMT-10:00) Pacific, Tahiti</option><option value="Pacific/Marquesas">(GMT-09:30) Pacific, Marquesas</option><option value="America/Adak">(GMT-09:00) America, Adak</option><option value="Pacific/Gambier">(GMT-09:00) Pacific, Gambier</option><option value="America/Anchorage">(GMT-08:00) America, Anchorage</option><option value="America/Juneau">(GMT-08:00) America, Juneau</option><option value="America/Metlakatla">(GMT-08:00) America, Metlakatla</option><option value="America/Nome">(GMT-08:00) America, Nome</option><option value="America/Santa_Isabel">(GMT-08:00) America, Santa Isabel</option><option value="America/Sitka">(GMT-08:00) America, Sitka</option><option value="America/Yakutat">(GMT-08:00) America, Yakutat</option><option value="Pacific/Pitcairn">(GMT-08:00) Pacific, Pitcairn</option><option value="America/Chihuahua">(GMT-07:00) America, Chihuahua</option><option value="America/Creston">(GMT-07:00) America, Creston</option><option value="America/Dawson">(GMT-07:00) America, Dawson</option><option value="America/Dawson_Creek">(GMT-07:00) America, Dawson Creek</option><option value="America/Hermosillo">(GMT-07:00) America, Hermosillo</option><option value="America/Los_Angeles">(GMT-07:00) America, Los Angeles</option><option value="America/Mazatlan">(GMT-07:00) America, Mazatlan</option><option value="America/Phoenix">(GMT-07:00) America, Phoenix</option><option value="America/Tijuana">(GMT-07:00) America, Tijuana</option><option value="America/Vancouver">(GMT-07:00) America, Vancouver</option><option value="America/Whitehorse">(GMT-07:00) America, Whitehorse</option><option value="America/Bahia_Banderas">(GMT-06:00) America, Bahia Banderas</option><option value="America/Belize">(GMT-06:00) America, Belize</option><option value="America/Boise">(GMT-06:00) America, Boise</option><option value="America/Cambridge_Bay">(GMT-06:00) America, Cambridge Bay</option><option value="America/Cancun">(GMT-06:00) America, Cancun</option><option value="America/Costa_Rica">(GMT-06:00) America, Costa Rica</option><option value="America/Denver">(GMT-06:00) America, Denver</option><option value="America/Edmonton">(GMT-06:00) America, Edmonton</option><option value="America/El_Salvador">(GMT-06:00) America, El Salvador</option><option value="America/Guatemala">(GMT-06:00) America, Guatemala</option><option value="America/Inuvik">(GMT-06:00) America, Inuvik</option><option value="America/Managua">(GMT-06:00) America, Managua</option><option value="America/Merida">(GMT-06:00) America, Merida</option><option value="America/Mexico_City">(GMT-06:00) America, Mexico City</option><option value="America/Monterrey">(GMT-06:00) America, Monterrey</option><option value="America/Ojinaga">(GMT-06:00) America, Ojinaga</option><option value="America/Regina">(GMT-06:00) America, Regina</option><option value="America/Swift_Current">(GMT-06:00) America, Swift Current</option><option value="America/Tegucigalpa">(GMT-06:00) America, Tegucigalpa</option><option value="America/Yellowknife">(GMT-06:00) America, Yellowknife</option><option value="Pacific/Galapagos">(GMT-06:00) Pacific, Galapagos</option><option value="America/Atikokan">(GMT-05:00) America, Atikokan</option><option value="America/Bogota">(GMT-05:00) America, Bogota</option><option value="America/Cayman">(GMT-05:00) America, Cayman</option><option value="America/Chicago">(GMT-05:00) America, Chicago</option><option value="America/Eirunepe">(GMT-05:00) America, Eirunepe</option><option value="America/Guayaquil">(GMT-05:00) America, Guayaquil</option><option value="America/Indiana/Knox">(GMT-05:00) America, Indiana, Knox</option><option value="America/Indiana/Tell_City">(GMT-05:00) America, Indiana, Tell City</option><option value="America/Jamaica">(GMT-05:00) America, Jamaica</option><option value="America/Lima">(GMT-05:00) America, Lima</option><option value="America/Matamoros">(GMT-05:00) America, Matamoros</option><option value="America/Menominee">(GMT-05:00) America, Menominee</option><option value="America/North_Dakota/Beulah">(GMT-05:00) America, North Dakota, Beulah</option><option value="America/North_Dakota/Center">(GMT-05:00) America, North Dakota, Center</option><option value="America/North_Dakota/New_Salem">(GMT-05:00) America, North Dakota, New Salem</option><option value="America/Panama">(GMT-05:00) America, Panama</option><option value="America/Rainy_River">(GMT-05:00) America, Rainy River</option><option value="America/Rankin_Inlet">(GMT-05:00) America, Rankin Inlet</option><option value="America/Resolute">(GMT-05:00) America, Resolute</option><option value="America/Rio_Branco">(GMT-05:00) America, Rio Branco</option><option value="America/Winnipeg">(GMT-05:00) America, Winnipeg</option><option value="Pacific/Easter">(GMT-05:00) Pacific, Easter</option><option value="America/Caracas">(GMT-04:30) America, Caracas</option><option value="America/Anguilla">(GMT-04:00) America, Anguilla</option><option value="America/Antigua">(GMT-04:00) America, Antigua</option><option value="America/Aruba">(GMT-04:00) America, Aruba</option><option value="America/Barbados">(GMT-04:00) America, Barbados</option><option value="America/Blanc-Sablon">(GMT-04:00) America, Blanc-Sablon</option><option value="America/Boa_Vista">(GMT-04:00) America, Boa Vista</option><option value="America/Curacao">(GMT-04:00) America, Curacao</option><option value="America/Detroit">(GMT-04:00) America, Detroit</option><option value="America/Dominica">(GMT-04:00) America, Dominica</option><option value="America/Grand_Turk">(GMT-04:00) America, Grand Turk</option><option value="America/Grenada">(GMT-04:00) America, Grenada</option><option value="America/Guadeloupe">(GMT-04:00) America, Guadeloupe</option><option value="America/Guyana">(GMT-04:00) America, Guyana</option><option value="America/Havana">(GMT-04:00) America, Havana</option><option value="America/Indiana/Indianapolis">(GMT-04:00) America, Indiana, Indianapolis</option><option value="America/Indiana/Marengo">(GMT-04:00) America, Indiana, Marengo</option><option value="America/Indiana/Petersburg">(GMT-04:00) America, Indiana, Petersburg</option><option value="America/Indiana/Vevay">(GMT-04:00) America, Indiana, Vevay</option><option value="America/Indiana/Vincennes">(GMT-04:00) America, Indiana, Vincennes</option><option value="America/Indiana/Winamac">(GMT-04:00) America, Indiana, Winamac</option><option value="America/Iqaluit">(GMT-04:00) America, Iqaluit</option><option value="America/Kentucky/Louisville">(GMT-04:00) America, Kentucky, Louisville</option><option value="America/Kentucky/Monticello">(GMT-04:00) America, Kentucky, Monticello</option><option value="America/Kralendijk">(GMT-04:00) America, Kralendijk</option><option value="America/La_Paz">(GMT-04:00) America, La Paz</option><option value="America/Lower_Princes">(GMT-04:00) America, Lower Princes</option><option value="America/Manaus">(GMT-04:00) America, Manaus</option><option value="America/Marigot">(GMT-04:00) America, Marigot</option><option value="America/Martinique">(GMT-04:00) America, Martinique</option><option value="America/Montserrat">(GMT-04:00) America, Montserrat</option><option value="America/Nassau">(GMT-04:00) America, Nassau</option><option value="America/New_York">(GMT-04:00) America, New York</option><option value="America/Nipigon">(GMT-04:00) America, Nipigon</option><option value="America/Pangnirtung">(GMT-04:00) America, Pangnirtung</option><option value="America/Port_of_Spain">(GMT-04:00) America, Port of Spain</option><option value="America/Port-au-Prince">(GMT-04:00) America, Port-au-Prince</option><option value="America/Porto_Velho">(GMT-04:00) America, Porto Velho</option><option value="America/Puerto_Rico">(GMT-04:00) America, Puerto Rico</option><option value="America/Santo_Domingo">(GMT-04:00) America, Santo Domingo</option><option value="America/St_Barthelemy">(GMT-04:00) America, St. Barthelemy</option><option value="America/St_Kitts">(GMT-04:00) America, St. Kitts</option><option value="America/St_Lucia">(GMT-04:00) America, St. Lucia</option><option value="America/St_Thomas">(GMT-04:00) America, St. Thomas</option><option value="America/St_Vincent">(GMT-04:00) America, St. Vincent</option><option value="America/Thunder_Bay">(GMT-04:00) America, Thunder Bay</option><option value="America/Toronto">(GMT-04:00) America, Toronto</option><option value="America/Tortola">(GMT-04:00) America, Tortola</option><option value="America/Araguaina">(GMT-03:00) America, Araguaina</option><option value="America/Argentina/Buenos_Aires">(GMT-03:00) America, Argentina, Buenos Aires</option><option value="America/Argentina/Catamarca">(GMT-03:00) America, Argentina, Catamarca</option><option value="America/Argentina/Cordoba">(GMT-03:00) America, Argentina, Cordoba</option><option value="America/Argentina/Jujuy">(GMT-03:00) America, Argentina, Jujuy</option><option value="America/Argentina/La_Rioja">(GMT-03:00) America, Argentina, La Rioja</option><option value="America/Argentina/Mendoza">(GMT-03:00) America, Argentina, Mendoza</option><option value="America/Argentina/Rio_Gallegos">(GMT-03:00) America, Argentina, Rio Gallegos</option><option value="America/Argentina/Salta">(GMT-03:00) America, Argentina, Salta</option><option value="America/Argentina/San_Juan">(GMT-03:00) America, Argentina, San Juan</option><option value="America/Argentina/San_Luis">(GMT-03:00) America, Argentina, San Luis</option><option value="America/Argentina/Tucuman">(GMT-03:00) America, Argentina, Tucuman</option><option value="America/Argentina/Ushuaia">(GMT-03:00) America, Argentina, Ushuaia</option><option value="America/Asuncion">(GMT-03:00) America, Asuncion</option><option value="America/Bahia">(GMT-03:00) America, Bahia</option><option value="America/Belem">(GMT-03:00) America, Belem</option><option value="America/Campo_Grande">(GMT-03:00) America, Campo Grande</option><option value="America/Cayenne">(GMT-03:00) America, Cayenne</option><option value="America/Cuiaba">(GMT-03:00) America, Cuiaba</option><option value="America/Fortaleza">(GMT-03:00) America, Fortaleza</option><option value="America/Glace_Bay">(GMT-03:00) America, Glace Bay</option><option value="America/Godthab">(GMT-03:00) America, Godthab</option><option value="America/Goose_Bay">(GMT-03:00) America, Goose Bay</option><option value="America/Halifax">(GMT-03:00) America, Halifax</option><option value="America/Maceio">(GMT-03:00) America, Maceio</option><option value="America/Moncton">(GMT-03:00) America, Moncton</option><option value="America/Paramaribo">(GMT-03:00) America, Paramaribo</option><option value="America/Recife">(GMT-03:00) America, Recife</option><option value="America/Santarem">(GMT-03:00) America, Santarem</option><option value="America/Santiago">(GMT-03:00) America, Santiago</option><option value="America/Thule">(GMT-03:00) America, Thule</option><option value="Antarctica/Palmer">(GMT-03:00) Antarctica, Palmer</option><option value="Antarctica/Rothera">(GMT-03:00) Antarctica, Rothera</option><option value="Atlantic/Bermuda">(GMT-03:00) Atlantic, Bermuda</option><option value="Atlantic/Stanley">(GMT-03:00) Atlantic, Stanley</option><option value="America/St_Johns">(GMT-02:30) America, St. Johns</option><option value="America/Miquelon">(GMT-02:00) America, Miquelon</option><option value="America/Montevideo">(GMT-02:00) America, Montevideo</option><option value="America/Noronha">(GMT-02:00) America, Noronha</option><option value="America/Sao_Paulo">(GMT-02:00) America, Sao Paulo</option><option value="Atlantic/South_Georgia">(GMT-02:00) Atlantic, South Georgia</option><option value="America/Scoresbysund">(GMT-01:00) America, Scoresbysund</option><option value="Atlantic/Azores">(GMT-01:00) Atlantic, Azores</option><option value="Atlantic/Cape_Verde">(GMT-01:00) Atlantic, Cape Verde</option><option value="Africa/Abidjan">(GMT) Africa, Abidjan</option><option value="Africa/Accra">(GMT) Africa, Accra</option><option value="Africa/Bamako">(GMT) Africa, Bamako</option><option value="Africa/Banjul">(GMT) Africa, Banjul</option><option value="Africa/Bissau">(GMT) Africa, Bissau</option><option value="Africa/Casablanca">(GMT) Africa, Casablanca</option><option value="Africa/Conakry">(GMT) Africa, Conakry</option><option value="Africa/Dakar">(GMT) Africa, Dakar</option><option value="Africa/El_Aaiun">(GMT) Africa, El Aaiun</option><option value="Africa/Freetown">(GMT) Africa, Freetown</option><option value="Africa/Lome">(GMT) Africa, Lome</option><option value="Africa/Monrovia">(GMT) Africa, Monrovia</option><option value="Africa/Nouakchott">(GMT) Africa, Nouakchott</option><option value="Africa/Ouagadougou">(GMT) Africa, Ouagadougou</option><option value="Africa/Sao_Tome">(GMT) Africa, Sao Tome</option><option value="America/Danmarkshavn">(GMT) America, Danmarkshavn</option><option value="Antarctica/Troll">(GMT) Antarctica, Troll</option><option value="Atlantic/Canary">(GMT) Atlantic, Canary</option><option value="Atlantic/Faroe">(GMT) Atlantic, Faroe</option><option value="Atlantic/Madeira">(GMT) Atlantic, Madeira</option><option value="Atlantic/Reykjavik">(GMT) Atlantic, Reykjavik</option><option value="Atlantic/St_Helena">(GMT) Atlantic, St. Helena</option><option value="Europe/Dublin">(GMT) Europe, Dublin</option><option value="Europe/Guernsey">(GMT) Europe, Guernsey</option><option value="Europe/Isle_of_Man">(GMT) Europe, Isle of Man</option><option value="Europe/Jersey">(GMT) Europe, Jersey</option><option value="Europe/Lisbon">(GMT) Europe, Lisbon</option><option value="Europe/London">(GMT) Europe, London</option><option value="Africa/Algiers">(GMT+01:00) Africa, Algiers</option><option value="Africa/Bangui">(GMT+01:00) Africa, Bangui</option><option value="Africa/Brazzaville">(GMT+01:00) Africa, Brazzaville</option><option value="Africa/Ceuta">(GMT+01:00) Africa, Ceuta</option><option value="Africa/Douala">(GMT+01:00) Africa, Douala</option><option value="Africa/Kinshasa">(GMT+01:00) Africa, Kinshasa</option><option value="Africa/Lagos">(GMT+01:00) Africa, Lagos</option><option value="Africa/Libreville">(GMT+01:00) Africa, Libreville</option><option value="Africa/Luanda">(GMT+01:00) Africa, Luanda</option><option value="Africa/Malabo">(GMT+01:00) Africa, Malabo</option><option value="Africa/Ndjamena">(GMT+01:00) Africa, Ndjamena</option><option value="Africa/Niamey">(GMT+01:00) Africa, Niamey</option><option value="Africa/Porto-Novo">(GMT+01:00) Africa, Porto-Novo</option><option value="Africa/Tunis">(GMT+01:00) Africa, Tunis</option><option value="Arctic/Longyearbyen">(GMT+01:00) Arctic, Longyearbyen</option><option value="Europe/Amsterdam">(GMT+01:00) Europe, Amsterdam</option><option value="Europe/Andorra">(GMT+01:00) Europe, Andorra</option><option value="Europe/Belgrade">(GMT+01:00) Europe, Belgrade</option><option value="Europe/Berlin">(GMT+01:00) Europe, Berlin</option><option value="Europe/Bratislava">(GMT+01:00) Europe, Bratislava</option><option value="Europe/Brussels">(GMT+01:00) Europe, Brussels</option><option value="Europe/Budapest">(GMT+01:00) Europe, Budapest</option><option value="Europe/Busingen">(GMT+01:00) Europe, Busingen</option><option value="Europe/Copenhagen">(GMT+01:00) Europe, Copenhagen</option><option value="Europe/Gibraltar">(GMT+01:00) Europe, Gibraltar</option><option value="Europe/Ljubljana">(GMT+01:00) Europe, Ljubljana</option><option value="Europe/Luxembourg">(GMT+01:00) Europe, Luxembourg</option><option value="Europe/Madrid">(GMT+01:00) Europe, Madrid</option><option value="Europe/Malta">(GMT+01:00) Europe, Malta</option><option value="Europe/Monaco">(GMT+01:00) Europe, Monaco</option><option value="Europe/Oslo">(GMT+01:00) Europe, Oslo</option><option value="Europe/Paris">(GMT+01:00) Europe, Paris</option><option value="Europe/Podgorica">(GMT+01:00) Europe, Podgorica</option><option value="Europe/Prague">(GMT+01:00) Europe, Prague</option><option value="Europe/Rome">(GMT+01:00) Europe, Rome</option><option value="Europe/San_Marino">(GMT+01:00) Europe, San Marino</option><option value="Europe/Sarajevo">(GMT+01:00) Europe, Sarajevo</option><option value="Europe/Skopje">(GMT+01:00) Europe, Skopje</option><option value="Europe/Stockholm">(GMT+01:00) Europe, Stockholm</option><option value="Europe/Tirane">(GMT+01:00) Europe, Tirane</option><option value="Europe/Vaduz">(GMT+01:00) Europe, Vaduz</option><option value="Europe/Vatican">(GMT+01:00) Europe, Vatican</option><option value="Europe/Vienna">(GMT+01:00) Europe, Vienna</option><option value="Europe/Warsaw">(GMT+01:00) Europe, Warsaw</option><option value="Europe/Zagreb">(GMT+01:00) Europe, Zagreb</option><option value="Europe/Zurich">(GMT+01:00) Europe, Zurich</option><option value="Africa/Blantyre">(GMT+02:00) Africa, Blantyre</option><option value="Africa/Bujumbura">(GMT+02:00) Africa, Bujumbura</option><option value="Africa/Cairo">(GMT+02:00) Africa, Cairo</option><option value="Africa/Gaborone">(GMT+02:00) Africa, Gaborone</option><option value="Africa/Harare">(GMT+02:00) Africa, Harare</option><option value="Africa/Johannesburg">(GMT+02:00) Africa, Johannesburg</option><option value="Africa/Kigali">(GMT+02:00) Africa, Kigali</option><option value="Africa/Lubumbashi">(GMT+02:00) Africa, Lubumbashi</option><option value="Africa/Lusaka">(GMT+02:00) Africa, Lusaka</option><option value="Africa/Maputo">(GMT+02:00) Africa, Maputo</option><option value="Africa/Maseru">(GMT+02:00) Africa, Maseru</option><option value="Africa/Mbabane">(GMT+02:00) Africa, Mbabane</option><option value="Africa/Tripoli">(GMT+02:00) Africa, Tripoli</option><option value="Africa/Windhoek">(GMT+02:00) Africa, Windhoek</option><option value="Asia/Beirut">(GMT+02:00) Asia, Beirut</option><option value="Asia/Gaza">(GMT+02:00) Asia, Gaza</option><option value="Asia/Hebron">(GMT+02:00) Asia, Hebron</option><option value="Asia/Jerusalem">(GMT+02:00) Asia, Jerusalem</option><option value="Asia/Nicosia">(GMT+02:00) Asia, Nicosia</option><option value="Europe/Athens">(GMT+02:00) Europe, Athens</option><option value="Europe/Bucharest">(GMT+02:00) Europe, Bucharest</option><option value="Europe/Chisinau">(GMT+02:00) Europe, Chisinau</option><option value="Europe/Helsinki">(GMT+02:00) Europe, Helsinki</option><option value="Europe/Istanbul">(GMT+02:00) Europe, Istanbul</option><option value="Europe/Kiev">(GMT+02:00) Europe, Kiev</option><option value="Europe/Mariehamn">(GMT+02:00) Europe, Mariehamn</option><option value="Europe/Riga">(GMT+02:00) Europe, Riga</option><option value="Europe/Sofia">(GMT+02:00) Europe, Sofia</option><option value="Europe/Tallinn">(GMT+02:00) Europe, Tallinn</option><option value="Europe/Uzhgorod">(GMT+02:00) Europe, Uzhgorod</option><option value="Europe/Vilnius">(GMT+02:00) Europe, Vilnius</option><option value="Europe/Zaporozhye">(GMT+02:00) Europe, Zaporozhye</option><option value="Africa/Addis_Ababa">(GMT+03:00) Africa, Addis Ababa</option><option value="Africa/Asmara">(GMT+03:00) Africa, Asmara</option><option value="Africa/Dar_es_Salaam">(GMT+03:00) Africa, Dar es Salaam</option><option value="Africa/Djibouti">(GMT+03:00) Africa, Djibouti</option><option value="Africa/Juba">(GMT+03:00) Africa, Juba</option><option value="Africa/Kampala">(GMT+03:00) Africa, Kampala</option><option value="Africa/Khartoum">(GMT+03:00) Africa, Khartoum</option><option value="Africa/Mogadishu">(GMT+03:00) Africa, Mogadishu</option><option value="Africa/Nairobi">(GMT+03:00) Africa, Nairobi</option><option value="Antarctica/Syowa">(GMT+03:00) Antarctica, Syowa</option><option value="Asia/Aden">(GMT+03:00) Asia, Aden</option><option value="Asia/Amman">(GMT+03:00) Asia, Amman</option><option value="Asia/Baghdad">(GMT+03:00) Asia, Baghdad</option><option value="Asia/Bahrain">(GMT+03:00) Asia, Bahrain</option><option value="Asia/Damascus">(GMT+03:00) Asia, Damascus</option><option value="Asia/Kuwait">(GMT+03:00) Asia, Kuwait</option><option value="Asia/Qatar">(GMT+03:00) Asia, Qatar</option><option value="Asia/Riyadh">(GMT+03:00) Asia, Riyadh</option><option value="Europe/Kaliningrad">(GMT+03:00) Europe, Kaliningrad</option><option value="Europe/Minsk">(GMT+03:00) Europe, Minsk</option><option value="Indian/Antananarivo">(GMT+03:00) Indian, Antananarivo</option><option value="Indian/Comoro">(GMT+03:00) Indian, Comoro</option><option value="Indian/Mayotte">(GMT+03:00) Indian, Mayotte</option><option value="Asia/Tehran">(GMT+03:30) Asia, Tehran</option><option value="Asia/Baku">(GMT+04:00) Asia, Baku</option><option value="Asia/Dubai">(GMT+04:00) Asia, Dubai</option><option value="Asia/Muscat">(GMT+04:00) Asia, Muscat</option><option value="Asia/Tbilisi">(GMT+04:00) Asia, Tbilisi</option><option value="Asia/Yerevan">(GMT+04:00) Asia, Yerevan</option><option value="Europe/Moscow">(GMT+04:00) Europe, Moscow</option><option value="Europe/Samara">(GMT+04:00) Europe, Samara</option><option value="Europe/Simferopol">(GMT+04:00) Europe, Simferopol</option><option value="Europe/Volgograd">(GMT+04:00) Europe, Volgograd</option><option value="Indian/Mahe">(GMT+04:00) Indian, Mahe</option><option value="Indian/Mauritius">(GMT+04:00) Indian, Mauritius</option><option value="Indian/Reunion">(GMT+04:00) Indian, Reunion</option><option value="Asia/Kabul">(GMT+04:30) Asia, Kabul</option><option value="Antarctica/Mawson">(GMT+05:00) Antarctica, Mawson</option><option value="Asia/Aqtau">(GMT+05:00) Asia, Aqtau</option><option value="Asia/Aqtobe">(GMT+05:00) Asia, Aqtobe</option><option value="Asia/Ashgabat">(GMT+05:00) Asia, Ashgabat</option><option value="Asia/Dushanbe">(GMT+05:00) Asia, Dushanbe</option><option value="Asia/Karachi">(GMT+05:00) Asia, Karachi</option><option value="Asia/Oral">(GMT+05:00) Asia, Oral</option><option value="Asia/Samarkand">(GMT+05:00) Asia, Samarkand</option><option value="Asia/Tashkent">(GMT+05:00) Asia, Tashkent</option><option value="Indian/Kerguelen">(GMT+05:00) Indian, Kerguelen</option><option value="Indian/Maldives">(GMT+05:00) Indian, Maldives</option><option value="Asia/Colombo">(GMT+05:30) Asia, Colombo</option><option value="Asia/Kolkata">(GMT+05:30) Asia, Kolkata</option><option value="Asia/Kathmandu">(GMT+05:45) Asia, Kathmandu</option><option value="Antarctica/Vostok">(GMT+06:00) Antarctica, Vostok</option><option value="Asia/Almaty">(GMT+06:00) Asia, Almaty</option><option value="Asia/Bishkek">(GMT+06:00) Asia, Bishkek</option><option value="Asia/Dhaka">(GMT+06:00) Asia, Dhaka</option><option value="Asia/Qyzylorda">(GMT+06:00) Asia, Qyzylorda</option><option value="Asia/Thimphu">(GMT+06:00) Asia, Thimphu</option><option value="Asia/Yekaterinburg">(GMT+06:00) Asia, Yekaterinburg</option><option value="Indian/Chagos">(GMT+06:00) Indian, Chagos</option><option value="Asia/Rangoon">(GMT+06:30) Asia, Rangoon</option><option value="Indian/Cocos">(GMT+06:30) Indian, Cocos</option><option value="Antarctica/Davis">(GMT+07:00) Antarctica, Davis</option><option value="Asia/Bangkok">(GMT+07:00) Asia, Bangkok</option><option value="Asia/Ho_Chi_Minh">(GMT+07:00) Asia, Ho Chi Minh</option><option value="Asia/Hovd">(GMT+07:00) Asia, Hovd</option><option value="Asia/Jakarta">(GMT+07:00) Asia, Jakarta</option><option value="Asia/Novokuznetsk">(GMT+07:00) Asia, Novokuznetsk</option><option value="Asia/Novosibirsk">(GMT+07:00) Asia, Novosibirsk</option><option value="Asia/Omsk">(GMT+07:00) Asia, Omsk</option><option value="Asia/Phnom_Penh">(GMT+07:00) Asia, Phnom Penh</option><option value="Asia/Pontianak">(GMT+07:00) Asia, Pontianak</option><option value="Asia/Vientiane">(GMT+07:00) Asia, Vientiane</option><option value="Indian/Christmas">(GMT+07:00) Indian, Christmas</option><option value="Antarctica/Casey">(GMT+08:00) Antarctica, Casey</option><option value="Asia/Brunei">(GMT+08:00) Asia, Brunei</option><option value="Asia/Choibalsan">(GMT+08:00) Asia, Choibalsan</option><option value="Asia/Chongqing">(GMT+08:00) Asia, Chongqing</option><option value="Asia/Harbin">(GMT+08:00) Asia, Harbin</option><option value="Asia/Hong_Kong">(GMT+08:00) Asia, Hong Kong</option><option value="Asia/Kashgar">(GMT+08:00) Asia, Kashgar</option><option value="Asia/Krasnoyarsk">(GMT+08:00) Asia, Krasnoyarsk</option><option value="Asia/Kuala_Lumpur">(GMT+08:00) Asia, Kuala Lumpur</option><option value="Asia/Kuching">(GMT+08:00) Asia, Kuching</option><option value="Asia/Macau">(GMT+08:00) Asia, Macau</option><option value="Asia/Makassar">(GMT+08:00) Asia, Makassar</option><option value="Asia/Manila">(GMT+08:00) Asia, Manila</option><option value="Asia/Shanghai">(GMT+08:00) Asia, Shanghai</option><option value="Asia/Singapore">(GMT+08:00) Asia, Singapore</option><option value="Asia/Taipei">(GMT+08:00) Asia, Taipei</option><option value="Asia/Ulaanbaatar">(GMT+08:00) Asia, Ulaanbaatar</option><option value="Asia/Urumqi">(GMT+08:00) Asia, Urumqi</option><option value="Australia/Perth">(GMT+08:00) Australia, Perth</option><option value="Australia/Eucla">(GMT+08:45) Australia, Eucla</option><option value="Asia/Dili">(GMT+09:00) Asia, Dili</option><option value="Asia/Irkutsk">(GMT+09:00) Asia, Irkutsk</option><option value="Asia/Jayapura">(GMT+09:00) Asia, Jayapura</option><option value="Asia/Pyongyang">(GMT+09:00) Asia, Pyongyang</option><option value="Asia/Seoul">(GMT+09:00) Asia, Seoul</option><option value="Asia/Tokyo">(GMT+09:00) Asia, Tokyo</option><option value="Pacific/Palau">(GMT+09:00) Pacific, Palau</option><option value="Australia/Darwin">(GMT+09:30) Australia, Darwin</option><option value="Antarctica/DumontDUrville">(GMT+10:00) Antarctica, DumontDUrville</option><option value="Asia/Khandyga">(GMT+10:00) Asia, Khandyga</option><option value="Asia/Yakutsk">(GMT+10:00) Asia, Yakutsk</option><option value="Australia/Brisbane">(GMT+10:00) Australia, Brisbane</option><option value="Australia/Lindeman">(GMT+10:00) Australia, Lindeman</option><option value="Pacific/Chuuk">(GMT+10:00) Pacific, Chuuk</option><option value="Pacific/Guam">(GMT+10:00) Pacific, Guam</option><option value="Pacific/Port_Moresby">(GMT+10:00) Pacific, Port Moresby</option><option value="Pacific/Saipan">(GMT+10:00) Pacific, Saipan</option><option value="Australia/Adelaide">(GMT+10:30) Australia, Adelaide</option><option value="Australia/Broken_Hill">(GMT+10:30) Australia, Broken Hill</option><option value="Antarctica/Macquarie">(GMT+11:00) Antarctica, Macquarie</option><option value="Asia/Sakhalin">(GMT+11:00) Asia, Sakhalin</option><option value="Asia/Ust-Nera">(GMT+11:00) Asia, Ust-Nera</option><option value="Asia/Vladivostok">(GMT+11:00) Asia, Vladivostok</option><option value="Australia/Currie">(GMT+11:00) Australia, Currie</option><option value="Australia/Hobart">(GMT+11:00) Australia, Hobart</option><option value="Australia/Lord_Howe">(GMT+11:00) Australia, Lord Howe</option><option value="Australia/Melbourne">(GMT+11:00) Australia, Melbourne</option><option value="Australia/Sydney">(GMT+11:00) Australia, Sydney</option><option value="Pacific/Efate">(GMT+11:00) Pacific, Efate</option><option value="Pacific/Guadalcanal">(GMT+11:00) Pacific, Guadalcanal</option><option value="Pacific/Kosrae">(GMT+11:00) Pacific, Kosrae</option><option value="Pacific/Noumea">(GMT+11:00) Pacific, Noumea</option><option value="Pacific/Pohnpei">(GMT+11:00) Pacific, Pohnpei</option><option value="Pacific/Norfolk">(GMT+11:30) Pacific, Norfolk</option><option value="Asia/Anadyr">(GMT+12:00) Asia, Anadyr</option><option value="Asia/Kamchatka">(GMT+12:00) Asia, Kamchatka</option><option value="Asia/Magadan">(GMT+12:00) Asia, Magadan</option><option value="Pacific/Funafuti">(GMT+12:00) Pacific, Funafuti</option><option value="Pacific/Kwajalein">(GMT+12:00) Pacific, Kwajalein</option><option value="Pacific/Majuro">(GMT+12:00) Pacific, Majuro</option><option value="Pacific/Nauru">(GMT+12:00) Pacific, Nauru</option><option value="Pacific/Tarawa">(GMT+12:00) Pacific, Tarawa</option><option value="Pacific/Wake">(GMT+12:00) Pacific, Wake</option><option value="Pacific/Wallis">(GMT+12:00) Pacific, Wallis</option><option value="Antarctica/McMurdo">(GMT+13:00) Antarctica, McMurdo</option><option value="Pacific/Auckland">(GMT+13:00) Pacific, Auckland</option><option value="Pacific/Enderbury">(GMT+13:00) Pacific, Enderbury</option><option value="Pacific/Fakaofo">(GMT+13:00) Pacific, Fakaofo</option><option value="Pacific/Fiji">(GMT+13:00) Pacific, Fiji</option><option value="Pacific/Tongatapu">(GMT+13:00) Pacific, Tongatapu</option><option value="Pacific/Chatham">(GMT+13:45) Pacific, Chatham</option><option value="Pacific/Apia">(GMT+14:00) Pacific, Apia</option><option value="Pacific/Kiritimati">(GMT+14:00) Pacific, Kiritimati</option>                    </select>
+                </div>
+                <div class="float-clear"></div>
+            </div>
+            
+            <div class="form-input-wrapper">
+                <button class="active">
+                    <i class="icon-lightbulb progress-icon hide"></i> 
+                    Save Changes                </button>
+            </div>
+        </div>
+    </form>
+    <script>
+    $(function () {
+        $('form.update-timeline-form').ajaxForm({
+            url: SK_source()+'?t=user&a=settings',
+            
+            beforeSend: function () {
+                SK_progressIconLoader($('form.update-timeline-form').find('button'));
+            },
+            
+            success: function (responseText) {
+                
+                if (responseText.status == 200) {
+                    
+                    $('.form-header').after('<div class="success-message hidden">Changes saved.</div>');
+                    $('.success-message').fadeIn('fast',function () {
+                        $(this).fadeOut(1500, function() {
+                            $(this).remove();
+                        });
+                    });
+                }
+                
+                SK_progressIconLoader($('form.update-timeline-form').find('button'));
+            }
+        });
+    });
+    
+    function SK_getMonthDays(month_number) {
+        var month = new Array();
+        month[1] = 31;
+        month[2] = 28;
+        month[3] = 31;
+        month[4] = 30;
+        month[5] = 31;
+        month[6] = 30;
+        month[7] = 31;
+        month[8] = 31;
+        month[9] = 30;
+        month[10] = 31;
+        month[11] = 30;
+        month[12] = 31;
+        $('.birth-date-select').html('');
+        
+        for (i=1; i<=month[month_number]; i++) {
+            $('.birth-date-select').append('<option value="'+ i +'">'+ i +'</option>');
+        }
+    }
+    </script>
+    </div>
+<div class="float-clear"></div>    </div>
+    
+    <div class="footer-wrapper">
+    <div class="footer-content" align="center">
+        <div class="footer-line">
+            <a href="http://localhost/socialkit/index.php?tab1=terms&tab2=about" data-href="?tab1=terms&tab2=about">
+                About            </a> - 
+            
+                        <a href="http://localhost/socialkit/index.php?tab1=create_page" data-href="?tab1=create_page">
+                Create Page            </a> - 
+            
+            <a href="http://localhost/socialkit/index.php?tab1=create_group" data-href="?tab1=create_group">
+                Create Group            </a> - 
+                        
+            <a href="http://localhost/socialkit/index.php?tab1=terms&tab2=contact" data-href="?tab1=terms&tab2=contact">
+                Contact            </a> - 
+            
+            <a href="http://localhost/socialkit/index.php?tab1=terms&tab2=privacy" data-href="?tab1=terms&tab2=privacy">
+                Privacy Policy            </a> - 
+            
+            <a href="http://localhost/socialkit/index.php?tab1=terms&tab2=tos" data-href="?tab1=terms&tab2=tos">
+                Terms of Use            </a> - 
+            
+            <a href="http://localhost/socialkit/index.php?tab1=terms&tab2=disclaimer" data-href="?tab1=terms&tab2=disclaimer">
+                Disclaimer            </a> - 
+            
+            <a href="http://localhost/socialkit/admin/">
+                Admin            </a>
+        </div>
+        
+        <div class="footer-line">
+            Languages: <a href="index.php?tab1=settings&amp;tab2=general&amp;lang=deutsch">Deutsch</a> - <a href="index.php?tab1=settings&amp;tab2=general&amp;lang=english">English</a> - <a href="index.php?tab1=settings&amp;tab2=general&amp;lang=espanol">Espanol</a> - <a href="index.php?tab1=settings&amp;tab2=general&amp;lang=indonesian">Indonesian</a> - <a href="index.php?tab1=settings&amp;tab2=general&amp;lang=jawa">Jawa</a> - <a href="index.php?tab1=settings&amp;tab2=general&amp;lang=portuguese">Portuguese</a> - <a href="index.php?tab1=settings&amp;tab2=general&amp;lang=turkish">Turkish</a>        </div>
+        
+        <div class="footer-line">
+            Copyright &#169; 2015 IslamWay. All rights reserved.
+        </div>
+    </div>
+</div>    
+    <div class="chat-container">
+    <div class="online-wrapper">
+        <div class="online-header" onclick="javascript:$('.online-content-toggler').toggle();">
+            <i class="icon-circle chat-icon"></i> 
+            
+            Chat 
+            
+            (<span class="online-count">0</span>)
+            
+            <span class="update-alert hidden">New!</span>
+        </div>
+        <div class="online-content-toggler">
+            <div class="online-list">
+                <div class="no-wrapper" align="center">None of the people you follow are online right now.</div>            </div>
+            <div class="online-search">
+                <input type="text" placeholder="Search for online friends" onkeyup="SK_getOnlineList(this.value);">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+initial_creq_time = 5000;
+
+// Update online list
+function SK_updateOnlineList() {
+    chat_container = $('.chat-container');
+    
+    if (chat_container.length == 1) {
+    
+        if ( $('.online-search input').val().length == 0 ) {
+            
+            $.get (SK_source(), {t: 'search', a: 'online'}, function (data) {
+                
+                if (data.status == 200) {
+                    
+                    if (data.html.length == 0) {
+                        $('.online-list').html('<div class="no-wrapper" align="center">None of the people you follow are online right now.</div>');
+                    }
+                    else {
+                        $('.online-list').html(data.html);
+                    }
+                }
+                
+                $('.online-count').text($('.online-list .column').length);
+            });
+        }
+    }
+}
+
+// Search online list
+function SK_getOnlineList(query) {
+    
+    if (query.length == 0) {
+        SK_updateOnlineList();
+    }
+    else {
+        chat_container = $('.chat-container');
+        
+        if (chat_container.length == 1) {
+            
+            $.get (SK_source(), {t: 'search', a: 'online', q: query}, function (data) {
+                
+                if (data.html.length == 0) {
+                    $('.online-list').html('<div class="no-wrapper" align="center">Search did not match any results.</div>');
+                }
+                else {
+                    $('.online-list').html(data.html);
+                }
+                
+                $('.online-count').text($('.online-list .column').length);
+            });
+        }
+    }
+}
+
+function addEmoToChat(code) {
+    inputTag = $('.chat-textarea textarea');
+    inputVal = inputTag.val();
+    $('.chat-emoticons-wrapper').hide();
+    
+    if (typeof(inputTag.attr('placeholder')) != "undefined") {
+        inputPlaceholder = inputTag.attr('placeholder');
+        
+        if (inputPlaceholder == inputVal) {
+            inputTag.val('');
+            inputVal = inputTag.val();
+        }
+        
+    }
+    
+    if (inputVal.length == 0) {
+        inputTag.val(code + ' ');
+    } else {
+        inputTag.val(inputVal + ' ' + code);
+    }
+    
+    inputTag.keyup().focus();
+}
+
+function loadNewChatMessages() {
+    
+    if (typeof($(document.body).attr('data-chat-recipient')) == "string") {
+        recipient_id = $(document.body).attr('data-chat-recipient');
+        
+        $.get(SK_source(), {t: 'chat', a: 'load_new_messages', recipient_id: recipient_id}, function (data) {
+            
+            if (data.status == 200) {
+                initial_creq_time = 5000;
+                
+                // Get new chat messages
+                $('.chat-messages')
+                    .append(data.html)
+                    .scrollTop($('.chat-messages').prop('scrollHeight'));
+                
+                document.getElementById('notification-sound').play();
+                
+                if (!$('.chat-textarea').is(':focus')) {
+                    document.title = '(New!) ' + document_title;
+                }
+                
+                SK_intervalUpdates();
+            } else {
+                initial_creq_time = initial_creq_time + 2000;
+            }
+            
+            // Check if recipient is online
+            cfrnd_online = false;
+            
+            if (typeof(data.online) == "boolean") {
+                
+                if (data.online == true) {
+                    cfrnd_online = true;
+                }
+            }
+            
+            if (cfrnd_online == true) {
+                $('.chat-header').find('.online-icon').addClass('active');
+                SK_updateOnlineList();
+            } else {
+                $('.chat-header').find('.online-icon').removeClass('active');
+            }
+        });
+    }
+    
+    setTimeout(function() {
+        loadNewChatMessages();
+    }, initial_creq_time);
+}
+
+// Send chat message
+function SK_sendChatMessage(text,recipient_id,e) {
+    document.title = document_title;
+    textarea_wrapper = $('.chat-textarea');
+    chat_messages_wrapper = $('.chat-messages');
+    
+    if (e.keyCode == 13 && e.shiftKey == 0) {
+        e.preventDefault();
+        textarea_wrapper.find('textarea').val('');
+        chat_messages_wrapper.append('<div class="chat-text align-right temp-text" align="right"><div class="text-wrapper float-right">' + text + '<div class="marker-out"><div class="marker-in"></div></div></div><div class="float-clear"></div></div>');
+        
+        $.post(SK_source() + '?t=chat&a=send_message', {text: text, recipient_id: recipient_id}, function (data) {
+            chat_messages_wrapper
+                .append(data.html)
+                .scrollTop(chat_messages_wrapper.prop('scrollHeight'))
+                .find('.temp-text')
+                    .remove();
+        });
+    }
+}
+
+// Focus on chat
+function SK_focusChat() {
+    document.title = document_title;
+}
+
+// Close chat
+function SK_closeChat() {
+    $('.chat-wrapper').remove();
+    $(document.body).removeAttr('data-chat-recipient');
+    $.get(SK_source(), {t: 'chat', a: 'close'});
+}
+
+setInterval('SK_updateOnlineList();', 40000);
+setTimeout(function() {
+    loadNewChatMessages();
+}, initial_creq_time);
+</script>    <audio id="notification-sound" preload="auto">
+        <source src="http://localhost/socialkit/themes/grape/sounds/notification.ogg" type="audio/ogg">
+        <source src="http://localhost/socialkit/themes/grape/sounds/notification.mp3" type="audio/mpeg">
+        <source src="http://localhost/socialkit/themes/grape/sounds/notification.wav" type="audio/wav">
+    </audio>
+</body>
+</html>

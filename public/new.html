@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Site Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" href="http://localhost/socialkit/favicon.ico" />
+    <link href="http://localhost/socialkit/themes/grape/css/style.css" rel="stylesheet">
+    <link href="http://localhost/socialkit/themes/grape/css/style-1.1.css" rel="stylesheet">
+    <link href="http://localhost/socialkit/themes/grape/css/style-1.2.css" rel="stylesheet">
+    <link href="http://localhost/socialkit/themes/grape/css/welcome.css" rel="stylesheet">    <link href="http://localhost/socialkit/themes/grape/css/font-awesome/font-awesome.css" rel="stylesheet">
+    <!--[if IE 7]>
+        <link href="http://localhost/socialkit/themes/grape/css/font-awesome/font-awesome-ie7.css" rel="stylesheet">
+    <![endif]-->
+    <script src="http://localhost/socialkit/themes/grape/javascript/jquery.1.10.2.min.js"></script>
+    <script src="http://localhost/socialkit/themes/grape/javascript/jquery-ui-1.10.4.custom.min.js"></script>
+    <script src="http://localhost/socialkit/themes/grape/javascript/jquery.ui.touch-punch.min.js"></script>
+    <script src="http://localhost/socialkit/themes/grape/javascript/jquery-timeago.js"></script>
+    <script src="http://localhost/socialkit/themes/grape/javascript/jquery.form.min.js"></script>
+    <script>
+    function SK_source(){
+        return 'request.php';
+    }
+    function SK_pageSource() {
+        return 'page.php';
+    }
+</script>    <script src="http://localhost/socialkit/themes/grape/javascript/welcome.js"></script>
+        <script>
+    /* Ajax Page Loader */
+    function SK_loadPage(pageurl) {
+        $.get(SK_pageSource() + pageurl, {}, function (data) {
+            $('.page-wrapper')
+                .html(data);
+            stopPageLoadingBar();
+
+            if (typeof window.history.pushState == "function") {
+                historyurl = pageurl;
+                
+                if ($("body").attr('data-rewrite') == 1) {
+                    historyurl = historyurl.replace(/\?tab1=timeline&tab2=([^\/]+)&tab3=([^\/]+)&recipient_id=([^\/]+)&id=([^\/]+)$/i, 'http://localhost/socialkit/@$4/$1/$2/$3');
+                    historyurl = historyurl.replace(/\?tab1=timeline&tab2=([^\/]+)&tab3=([^\/]+)&id=([^\/]+)$/i, 'http://localhost/socialkit/@$3/$1/$2');
+                    historyurl = historyurl.replace(/\?tab1=timeline&tab2=([^\/]+)&id=([^\/]+)$/i, 'http://localhost/socialkit/@$2/$1');
+                    historyurl = historyurl.replace(/\?tab1=timeline&id=([^\/]+)$/i, 'http://localhost/socialkit/@$1');
+
+                    historyurl = historyurl.replace(/\?tab1=messages&recipient_id=([A-Za-z0-9_]+)$/i, 'http://localhost/socialkit/messages/$1');
+                    historyurl = historyurl.replace(/\?tab1=story&id=([0-9]+)$/i, 'http://localhost/socialkit/story/$1');
+
+                    historyurl = historyurl.replace(/\?tab1=welcome&tab2=forgot_password$/i, 'http://localhost/socialkit/forgot-password');
+                    historyurl = historyurl.replace(/\?tab1=welcome&tab2=password_reset&id=([A-Za-z0-9_]+)$/i, 'http://localhost/socialkit/password-reset/$1');
+
+                    historyurl = historyurl.replace(/\?tab1=([^\/]+)&query=([^\/]+)$/i, 'http://localhost/socialkit/$1/$2');
+
+                    historyurl = historyurl.replace(/\?tab1=([^\/]+)&tab2=([^\/]+)&tab3=([^\/]+)$/i, 'http://localhost/socialkit/$1/$2/$3');
+                    historyurl = historyurl.replace(/\?tab1=([^\/]+)&tab2=([^\/]+)$/i, 'http://localhost/socialkit/$1/$2');
+                    historyurl = historyurl.replace(/\?tab1=([^\/]+)$/i, 'http://localhost/socialkit/$1');
+                }
+
+                history.replaceState({}, 'SocialKit', historyurl);
+            }
+        });
+        
+        $('.dropdown-search-container').hide();
+        $('.dropdown-notification-container').hide();
+        $('.notification-nav').removeClass('header-nav-active');
+        $('.dropdown-more-container').hide();
+        $(".sc-lightbox-container").remove();
+    }
+
+    function startPageLoadingBar() {
+        $(".page-loading-bar")
+            .show()
+            .width((50 + Math.random() * 30) + "%");
+    }
+    function stopPageLoadingBar() {
+        $(".page-loading-bar")
+            .width("101%")
+            .delay(200)
+            .fadeOut(400, function() {
+                $(this).width("0");
+            });
+    }
+
+    $(document).on('click', '*[data-href]', function(e) {
+        e.preventDefault();
+        startPageLoadingBar();
+        SK_loadPage($(this).attr('data-href'));
+        $(document).scrollTop(0);
+    });
+    </script>
+</head>
+<body>
+    <div class="header-wrapper" name="top">
+    <div class="header-content">
+        <div class="float-left">
+            <table border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td class="header-site-logo" align="left" valign="top">
+                    <a href="http://localhost/socialkit" style="margin-left: 10px;">
+                        <img src="http://localhost/socialkit/themes/grape/logo.png" alt="IslamWay">
+                    </a>
+                </td>
+                <td align="left" valign="top">
+                    <div class="header-live-search">
+                        <input value="Search for people, trends, pages and groups" placeholder="Search for people, trends, pages and groups" data-placeholder="Search for people, trends, pages and groups" type="text" onkeyup="SK_headerSearch(this.value);">
+                    </div>
+                </td>
+            </tr>
+            </table>
+        </div>
+        <div class="float-right">
+                        <a class="header-join-wrapper" href="http://localhost/socialkit/index.php?tab1=welcome" title="Join">
+                <i class="icon icon-signin"></i> Join            </a>
+                    </div>
+        <div class="float-clear"></div>
+    </div>
+</div>
+<div class="dropdown-search-container">
+    <div class="dropdown-search-wrapper">
+        <div class="dropdown-search-content float-left">
+            <div class="search-header">
+                <i class="icon-search progress-icon hide"></i>
+                Search Results            </div>
+            
+            <div class="search-list-wrapper"></div>
+            
+            <div align="center">
+                <a class="page-link" href="#">
+                    See all results                </a>
+            </div>
+        </div>
+        <div class="float-clear"></div>
+    </div>
+</div>
+<script>
+function SK_headerSearch(query) {
+    $('.dropdown-more-container').hide();
+    $('.dropdown-notification-container').hide();
+    $('.notification-nav').removeClass('header-nav-active');
+    search_wrapper = $('.dropdown-search-container');
+    
+    if (query.length == 0) {
+        search_wrapper.hide();
+    }
+    else {
+        search_wrapper.show();
+        SK_progressIconLoader(search_wrapper.find('.search-header'));
+        
+        $.get(SK_source(), {t: 'search', a: 'header', q: query}, function (data) {
+            
+            if (data.status == 200) {
+                
+                if (data.html.length == 0) {
+                    search_wrapper
+                    .find('.search-list-wrapper')
+                        .html('<div class="no-wrapper">No result found!</div>')
+                    .end().find('a.page-link')
+                            .hide();
+                } else {
+                    search_wrapper
+                        .find('.search-list-wrapper')
+                            .html(data.html)
+                        .end()
+                        .find('a.page-link')
+                            .attr('href', data.link).show();
+                }
+            }
+            
+            SK_progressIconLoader(search_wrapper.find('.search-header'));
+        });
+    }
+}
+function SK_moreToggle() {
+    $('.dropdown-search-container').hide();
+    $('.dropdown-notification-container').hide();
+    $('.notification-nav').removeClass('header-nav-active');
+    $('.dropdown-more-container').toggle();
+}
+</script>    <div class="page-loading-bar">
+        <dd></dd>
+        <dt></dt>
+    </div>
+    
+    <div class="page-wrapper">
+        <div class="page-margin"></div>
+<div class="float-left span60 desktop-only">
+    <h1>Welcome to IslamWay</h1>
+    
+    <div class="wc-feat-float">
+        <i class="icon-group" style="font-size: 50px;"></i>
+        <div class="feat-msg">
+            <strong>Connect and share with the people that matters to you.</strong>
+            <p>
+                Never miss a thing out! Keep in touch with your fans, customers or loved ones all the time!
+            </p>
+        </div>
+        <div class="float-clear"></div>
+    </div>
+
+    <div class="wc-feat-float">
+        <i class="icon-tablet" style="font-size: 80px;"></i>
+        <div class="feat-msg">
+            <strong>Heading Out? Go Mobile!</strong>
+            <p>
+                One website for all devices. Whether you use desktop, tablet or smartphone, keep in touch with your friends!
+            </p>
+        </div>
+        <div class="float-clear"></div>
+    </div>
+
+    <div class="wc-feat-float">
+        <i class="icon-globe" style="font-size: 70px;"></i>
+        <div class="feat-msg">
+            <strong>Know what's happening!</strong>
+            <p>
+                Stay ahead of the world. Keep an eye on what's trending around!
+            </p>
+        </div>
+        <div class="float-clear"></div>
+    </div>
+</div>
+<div class="float-right span35">
+            <form class="welcome-form login-form" method="post">
+        <div class="form-header">
+            <div class="float-left">
+                Log In            </div>
+            <div class="float-right">
+                <a href="http://localhost/socialkit/index.php?tab1=welcome&tab2=forgot_password">Forgot Password?</a>
+            </div>
+            <div class="float-clear"></div>
+        </div>
+        <div class="form-content">
+            <div class="input-wrapper">
+                <input type="text" name="login_id" value="Username or e-mail" placeholder="Username or e-mail" data-placeholder="Username or e-mail" autocomplete="off">
+            </div>
+            
+            <div class="input-wrapper">
+                <input type="password" name="login_password" placeholder="Password" autocomplete="off">
+            </div>
+            
+            <div class="input-wrapper">
+                <input type="checkbox" name="keep_logged_in" value="1"> Keep me logged in
+            </div>
+            
+            <button class="submit-btn active"><i class="icon-signin progress-icon"></i> Log In</button>
+        </div>
+    </form>
+        <form class="welcome-form signup-form" method="post">
+        <div class="form-header">Sign Up</div>
+        <div class="form-content">
+            <div class="input-wrapper">
+                <input type="text" name="name" placeholder="Full name" autocomplete="off">
+            </div>
+            
+            <div class="input-wrapper">
+                <input type="text" name="username" placeholder="Username" onkeyup="SK_checkUsername(this.value,0,'.check-username-result',false);" autocomplete="off">
+                <div class="check-username-result"></div>
+            </div>
+            
+            <div class="input-wrapper">
+                <input type="password" name="password" placeholder="Password" autocomplete="off">
+            </div>
+            
+            <div class="input-wrapper">
+                <input type="text" name="email" placeholder="E-mail" autocomplete="off">
+            </div>
+            
+            <div class="input-wrapper">
+                <select name="gender">
+                    <option value="">Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+
+                        
+            <button class="submit-btn active"><i class="icon-angle-right progress-icon"></i> Sign Up</button>
+        </div>
+    </form>
+        <div class="fb-button">
+        <a href="https://www.facebook.com/dialog/oauth?client_id=Your+Facebook+App+ID&redirect_uri=http%3A%2F%2Flocalhost%2Fsocialkit%2Fimport.php%3Ftype%3Dfacebook&state=4b517f992a3c2b97fec0cb48bc7f7d69&sdk=php-sdk-3.2.3&scope=email">
+            <i class="icon-facebook"></i>
+            <span>Connect with Facebook</span>
+        </a>
+    </div>
+</div>
+
+<div class="float-clear"></div>
+    </div>
+    
+    <div class="footer-wrapper">
+    <div class="footer-content" align="center">
+        <div class="footer-line">
+            <a href="http://localhost/socialkit/index.php?tab1=terms&tab2=about" data-href="?tab1=terms&tab2=about">
+                About            </a> - 
+            
+                        
+            <a href="http://localhost/socialkit/index.php?tab1=terms&tab2=contact" data-href="?tab1=terms&tab2=contact">
+                Contact            </a> - 
+            
+            <a href="http://localhost/socialkit/index.php?tab1=terms&tab2=privacy" data-href="?tab1=terms&tab2=privacy">
+                Privacy Policy            </a> - 
+            
+            <a href="http://localhost/socialkit/index.php?tab1=terms&tab2=tos" data-href="?tab1=terms&tab2=tos">
+                Terms of Use            </a> - 
+            
+            <a href="http://localhost/socialkit/index.php?tab1=terms&tab2=disclaimer" data-href="?tab1=terms&tab2=disclaimer">
+                Disclaimer            </a> - 
+            
+            <a href="http://localhost/socialkit/admin/">
+                Admin            </a>
+        </div>
+        
+        <div class="footer-line">
+            Languages: <a href="index.php?&amp;lang=deutsch">Deutsch</a> - <a href="index.php?&amp;lang=english">English</a> - <a href="index.php?&amp;lang=espanol">Espanol</a> - <a href="index.php?&amp;lang=indonesian">Indonesian</a> - <a href="index.php?&amp;lang=jawa">Jawa</a> - <a href="index.php?&amp;lang=portuguese">Portuguese</a> - <a href="index.php?&amp;lang=turkish">Turkish</a>        </div>
+        
+        <div class="footer-line">
+            Copyright &#169; 2015 IslamWay. All rights reserved.
+        </div>
+    </div>
+</div>    
+        <audio id="notification-sound" preload="auto">
+        <source src="http://localhost/socialkit/themes/grape/sounds/notification.ogg" type="audio/ogg">
+        <source src="http://localhost/socialkit/themes/grape/sounds/notification.mp3" type="audio/mpeg">
+        <source src="http://localhost/socialkit/themes/grape/sounds/notification.wav" type="audio/wav">
+    </audio>
+</body>
+</html>
